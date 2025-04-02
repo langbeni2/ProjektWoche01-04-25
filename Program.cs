@@ -3,9 +3,9 @@ using MongoDB.Driver;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MongoDB-Verbindung einrichten
-builder.Services.AddSingleton<IMongoClient, MongoClient>(sp =>
-    new MongoClient("mongodb://localhost:27017"));
+builder.Services.Configure<MongoDBSettings>(
+    builder.Configuration.GetSection("MongoDB"));
+builder.Services.AddSingleton<MongoDBService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -22,3 +22,4 @@ if (app.Environment.IsDevelopment())
 app.UseAuthorization();
 app.MapControllers();
 app.Run();
+
