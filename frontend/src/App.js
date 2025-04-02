@@ -62,6 +62,19 @@ function App() {
   };
 
   const handleAddOrUpdateReservation = () => {
+    // Überschneidung prüfen
+    const conflict = reservations.some((r) =>
+      r.roomName === formReservation.roomName &&
+      r.date === formReservation.date &&
+      r.time === formReservation.time &&
+      r.id !== formReservation.id // beim Bearbeiten ausschließen
+    );
+  
+    if (conflict) {
+      alert("❌ Raum ist zu dieser Zeit bereits reserviert.");
+      return;
+    }
+  
     if (formReservation.id === null) {
       const newId =
         reservations.length > 0 ? reservations[reservations.length - 1].id + 1 : 1;
@@ -72,8 +85,10 @@ function App() {
       );
       setReservations(updated);
     }
+  
     setFormReservation({ id: null, roomName: "", reservedBy: "", date: "", time: "" });
   };
+  
 
   const handleEditReservation = (res) => setFormReservation(res);
 
