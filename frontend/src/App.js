@@ -1,23 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect, useState } from "react";
 
 function App() {
+  const [rooms, setRooms] = useState([]);
+
+  useEffect(() => {
+    // Hier deine Backend-URL eintragen!
+    fetch("https://localhost:5001/api/meetingrooms")
+      .then((response) => response.json())
+      .then((data) => setRooms(data))
+      .catch((error) => console.error("Fehler beim Laden:", error));
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div style={{ padding: "20px" }}>
+      <h1>Besprechungsräume</h1>
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Kapazität</th>
+            <th>Ausstattung</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rooms.map((room) => (
+            <tr key={room.id}>
+              <td>{room.name}</td>
+              <td>{room.capacity}</td>
+              <td>{room.equipment}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
