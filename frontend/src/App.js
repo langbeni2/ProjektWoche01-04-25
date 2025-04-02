@@ -2,18 +2,8 @@ import React, { useState } from "react";
 
 function App() {
   const [rooms, setRooms] = useState([
-    {
-      id: 1,
-      name: "Raum A",
-      capacity: 10,
-      equipment: "Beamer, Whiteboard"
-    },
-    {
-      id: 2,
-      name: "Raum B",
-      capacity: 6,
-      equipment: "TV, HDMI"
-    }
+    { id: 1, name: "Raum A", capacity: 10, equipment: "Beamer" },
+    { id: 2, name: "Raum B", capacity: 6, equipment: "TV" }
   ]);
 
   const [formRoom, setFormRoom] = useState({
@@ -22,6 +12,23 @@ function App() {
     capacity: "",
     equipment: ""
   });
+
+  const [reservations] = useState([
+    {
+      id: 1,
+      roomName: "Raum A",
+      reservedBy: "Max Mustermann",
+      date: "2025-04-02",
+      time: "10:00"
+    },
+    {
+      id: 2,
+      roomName: "Raum B",
+      reservedBy: "Lisa Müller",
+      date: "2025-04-02",
+      time: "14:00"
+    }
+  ]);
 
   const handleChange = (e) => {
     setFormRoom({
@@ -32,25 +39,21 @@ function App() {
 
   const handleAddOrUpdateRoom = () => {
     if (formRoom.id === null) {
-      // Neuer Raum
       const newId = rooms.length > 0 ? rooms[rooms.length - 1].id + 1 : 1;
       const newRoom = { id: newId, ...formRoom };
       setRooms([...rooms, newRoom]);
     } else {
-      // Bestehenden Raum aktualisieren
       const updatedRooms = rooms.map((room) =>
         room.id === formRoom.id ? formRoom : room
       );
       setRooms(updatedRooms);
     }
-    // Formular zurücksetzen
     setFormRoom({ id: null, name: "", capacity: "", equipment: "" });
   };
 
   const handleDeleteRoom = (id) => {
     const updatedRooms = rooms.filter((room) => room.id !== id);
     setRooms(updatedRooms);
-    // Falls man gerade diesen bearbeitet → abbrechen
     if (formRoom.id === id) {
       setFormRoom({ id: null, name: "", capacity: "", equipment: "" });
     }
@@ -115,6 +118,28 @@ function App() {
       <button onClick={handleAddOrUpdateRoom} style={{ marginLeft: "10px" }}>
         {formRoom.id === null ? "Hinzufügen" : "Speichern"}
       </button>
+
+      <h2 style={{ marginTop: "50px" }}>Reservierungen (Listenansicht)</h2>
+      <table border="1" cellPadding="10">
+        <thead>
+          <tr>
+            <th>Raum</th>
+            <th>Reserviert von</th>
+            <th>Datum</th>
+            <th>Uhrzeit</th>
+          </tr>
+        </thead>
+        <tbody>
+          {reservations.map((res) => (
+            <tr key={res.id}>
+              <td>{res.roomName}</td>
+              <td>{res.reservedBy}</td>
+              <td>{res.date}</td>
+              <td>{res.time}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
