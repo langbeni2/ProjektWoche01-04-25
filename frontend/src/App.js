@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "./styles.css";
 
 function App() {
   const [rooms, setRooms] = useState([
@@ -31,7 +32,7 @@ function App() {
     time: ""
   });
 
-  // Räume
+  // === Räume ===
   const handleChangeRoom = (e) => {
     setFormRoom({ ...formRoom, [e.target.name]: e.target.value });
   };
@@ -56,25 +57,24 @@ function App() {
 
   const handleEditRoom = (room) => setFormRoom(room);
 
-  // Reservierungen
+  // === Reservierungen ===
   const handleChangeReservation = (e) => {
     setFormReservation({ ...formReservation, [e.target.name]: e.target.value });
   };
 
   const handleAddOrUpdateReservation = () => {
-    // Überschneidung prüfen
     const conflict = reservations.some((r) =>
       r.roomName === formReservation.roomName &&
       r.date === formReservation.date &&
       r.time === formReservation.time &&
-      r.id !== formReservation.id // beim Bearbeiten ausschließen
+      r.id !== formReservation.id
     );
-  
+
     if (conflict) {
       alert("❌ Raum ist zu dieser Zeit bereits reserviert.");
       return;
     }
-  
+
     if (formReservation.id === null) {
       const newId =
         reservations.length > 0 ? reservations[reservations.length - 1].id + 1 : 1;
@@ -85,10 +85,9 @@ function App() {
       );
       setReservations(updated);
     }
-  
+
     setFormReservation({ id: null, roomName: "", reservedBy: "", date: "", time: "" });
   };
-  
 
   const handleEditReservation = (res) => setFormReservation(res);
 
@@ -96,127 +95,141 @@ function App() {
     setReservations(reservations.filter((r) => r.id !== id));
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Besprechungsräume</h1>
-      <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Kapazität</th>
-            <th>Ausstattung</th>
-            <th>Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rooms.map((room) => (
-            <tr key={room.id}>
-              <td>{room.name}</td>
-              <td>{room.capacity}</td>
-              <td>{room.equipment}</td>
-              <td>
-                <button onClick={() => handleEditRoom(room)}>Bearbeiten</button>
-                <button onClick={() => handleDeleteRoom(room.id)}>Löschen</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+    <>
+      <header>
+        <h1>Meeting Room Reservation System</h1>
+      </header>
 
-      <h2 style={{ marginTop: "30px" }}>
-        {formRoom.id === null ? "Neuen Raum hinzufügen" : "Raum bearbeiten"}
-      </h2>
-      <input
-        type="text"
-        name="name"
-        placeholder="Name"
-        value={formRoom.name}
-        onChange={handleChangeRoom}
-      />
-      <input
-        type="number"
-        name="capacity"
-        placeholder="Kapazität"
-        value={formRoom.capacity}
-        onChange={handleChangeRoom}
-      />
-      <input
-        type="text"
-        name="equipment"
-        placeholder="Ausstattung"
-        value={formRoom.equipment}
-        onChange={handleChangeRoom}
-      />
-      <button onClick={handleAddOrUpdateRoom}>
-        {formRoom.id === null ? "Hinzufügen" : "Speichern"}
-      </button>
+      <main>
+        {/* ==== Räume ==== */}
+        <section>
+          <h2>Besprechungsräume</h2>
 
-      <h2 style={{ marginTop: "50px" }}>Reservierungen (Listenansicht)</h2>
-      <table border="1" cellPadding="10">
-        <thead>
-          <tr>
-            <th>Raum</th>
-            <th>Reserviert von</th>
-            <th>Datum</th>
-            <th>Uhrzeit</th>
-            <th>Aktionen</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reservations.map((res) => (
-            <tr key={res.id}>
-              <td>{res.roomName}</td>
-              <td>{res.reservedBy}</td>
-              <td>{res.date}</td>
-              <td>{res.time}</td>
-              <td>
-                <button onClick={() => handleEditReservation(res)}>Bearbeiten</button>
-                <button onClick={() => handleDeleteReservation(res.id)}>Löschen</button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Kapazität</th>
+                <th>Ausstattung</th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {rooms.map((room) => (
+                <tr key={room.id}>
+                  <td>{room.name}</td>
+                  <td>{room.capacity}</td>
+                  <td>{room.equipment}</td>
+                  <td>
+                    <button onClick={() => handleEditRoom(room)}>Bearbeiten</button>
+                    <button onClick={() => handleDeleteRoom(room.id)}>Löschen</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      <h2 style={{ marginTop: "30px" }}>
-        {formReservation.id === null
-          ? "Neue Reservierung"
-          : "Reservierung bearbeiten"}
-      </h2>
-      <select
-        name="roomName"
-        value={formReservation.roomName}
-        onChange={handleChangeReservation}
-      >
-        <option value="">Raum auswählen</option>
-        {rooms.map((r) => (
-          <option key={r.id} value={r.name}>
-            {r.name}
-          </option>
-        ))}
-      </select>
-      <input
-        type="text"
-        name="reservedBy"
-        placeholder="Reserviert von"
-        value={formReservation.reservedBy}
-        onChange={handleChangeReservation}
-      />
-      <input
-        type="date"
-        name="date"
-        value={formReservation.date}
-        onChange={handleChangeReservation}
-      />
-      <input
-        type="time"
-        name="time"
-        value={formReservation.time}
-        onChange={handleChangeReservation}
-      />
-      <button onClick={handleAddOrUpdateReservation}>
-        {formReservation.id === null ? "Hinzufügen" : "Speichern"}
-      </button>
-    </div>
+          <form>
+            <h3>{formRoom.id === null ? "Neuen Raum hinzufügen" : "Raum bearbeiten"}</h3>
+            <input
+              type="text"
+              name="name"
+              placeholder="Name"
+              value={formRoom.name}
+              onChange={handleChangeRoom}
+            />
+            <input
+              type="number"
+              name="capacity"
+              placeholder="Kapazität"
+              value={formRoom.capacity}
+              onChange={handleChangeRoom}
+            />
+            <input
+              type="text"
+              name="equipment"
+              placeholder="Ausstattung"
+              value={formRoom.equipment}
+              onChange={handleChangeRoom}
+            />
+            <button type="button" onClick={handleAddOrUpdateRoom}>
+              {formRoom.id === null ? "Hinzufügen" : "Speichern"}
+            </button>
+          </form>
+        </section>
+
+        {/* ==== Reservierungen ==== */}
+        <section>
+          <h2>Reservierungen</h2>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Raum</th>
+                <th>Reserviert von</th>
+                <th>Datum</th>
+                <th>Uhrzeit</th>
+                <th>Aktionen</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reservations.map((res) => (
+                <tr key={res.id}>
+                  <td>{res.roomName}</td>
+                  <td>{res.reservedBy}</td>
+                  <td>{res.date}</td>
+                  <td>{res.time}</td>
+                  <td>
+                    <button onClick={() => handleEditReservation(res)}>Bearbeiten</button>
+                    <button onClick={() => handleDeleteReservation(res.id)}>Löschen</button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+
+          <form>
+            <h3>{formReservation.id === null ? "Neue Reservierung" : "Reservierung bearbeiten"}</h3>
+            <select
+              name="roomName"
+              value={formReservation.roomName}
+              onChange={handleChangeReservation}
+            >
+              <option value="">Raum auswählen</option>
+              {rooms.map((r) => (
+                <option key={r.id} value={r.name}>
+                  {r.name}
+                </option>
+              ))}
+            </select>
+            <input
+              type="text"
+              name="reservedBy"
+              placeholder="Reserviert von"
+              value={formReservation.reservedBy}
+              onChange={handleChangeReservation}
+            />
+            <input
+              type="date"
+              name="date"
+              value={formReservation.date}
+              onChange={handleChangeReservation}
+            />
+            <input
+              type="time"
+              name="time"
+              value={formReservation.time}
+              onChange={handleChangeReservation}
+            />
+            <button type="button" onClick={handleAddOrUpdateReservation}>
+              {formReservation.id === null ? "Hinzufügen" : "Speichern"}
+            </button>
+          </form>
+        </section>
+      </main>
+
+      <footer>© 2025 Akshai's Reservation System</footer>
+    </>
   );
 }
 
