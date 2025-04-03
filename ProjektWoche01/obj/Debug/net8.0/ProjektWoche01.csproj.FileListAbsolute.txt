@@ -32,3 +32,9 @@ C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\obj\Debug\net8
 C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\obj\Debug\net8.0\ProjektWoche01.pdb
 C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\obj\Debug\net8.0\ProjektWoche01.genruntimeconfig.cache
 C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\obj\Debug\net8.0\ref\ProjektWoche01.dll
+C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\bin\Debug\net8.0\DnsClient.dll
+C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\bin\Debug\net8.0\MongoDB.Bson.dll
+C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\bin\Debug\net8.0\MongoDB.Driver.dll
+C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\bin\Debug\net8.0\SharpCompress.dll
+C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\bin\Debug\net8.0\Snappier.dll
+C:\Users\Maric\Documents\Gits\ProjektWoche01-04-25\ProjektWoche01\bin\Debug\net8.0\ZstdSharp.dll
