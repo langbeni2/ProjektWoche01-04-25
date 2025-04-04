@@ -1,35 +1,38 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function App() {
-  const [rooms, setRooms] = useState([
-    { id: 1, name: "Raum A", capacity: 10, equipment: "Beamer" },
-    { id: 2, name: "Raum B", capacity: 6, equipment: "TV" }
-  ]);
-
-  const [formRoom, setFormRoom] = useState({
-    id: null,
-    name: "",
-    capacity: "",
-    equipment: ""
-  });
-
-  const [reservations, setReservations] = useState([
-    {
-      id: 1,
-      roomName: "Raum A",
-      reservedBy: "Max Mustermann",
-      date: "2025-04-02",
-      time: "10:00"
-    }
-  ]);
-
+  const [rooms, setRooms] = useState([]);
+  const [reservations, setReservations] = useState([]);
+  const [formRoom, setFormRoom] = useState({ id: null, name: "", capacity: "", equipment: "" });
   const [formReservation, setFormReservation] = useState({
     id: null,
-    roomName: "",
+    roomId: "", 
     reservedBy: "",
     date: "",
     time: ""
   });
+  
+  // Räume abrufen
+  useEffect(() => {
+    fetch("http://localhost:5121/api/rooms")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Daten vom Server (Räume):", data);
+        setRooms(data);
+      })
+      .catch((error) => console.error("Fehler beim Laden der Räume:", error));
+  }, []);
+
+  // Reservierungen abrufen
+  useEffect(() => {
+    fetch("http://localhost:5121/api/reservations")
+      .then((response) => response.json())
+      .then((data) => {
+        console.log("Reservierungs-Daten:", data);
+        setReservations(data);
+      })
+      .catch((error) => console.error("Fehler beim Laden der Reservierungen:", error));
+  }, []);
 
   // Räume
   const handleChangeRoom = (e) => {
@@ -62,36 +65,47 @@ function App() {
   };
 
   const handleAddOrUpdateReservation = () => {
-    // Überschneidung prüfen
-    const conflict = reservations.some((r) =>
-      r.roomName === formReservation.roomName &&
-      r.date === formReservation.date &&
-      r.time === formReservation.time &&
-      r.id !== formReservation.id // beim Bearbeiten ausschließen
-    );
-  
-    if (conflict) {
-      alert("❌ Raum ist zu dieser Zeit bereits reserviert.");
-      return;
-    }
-  
+    // Hier kannst du noch einen Konflikt-Check einbauen, falls benötigt.
     if (formReservation.id === null) {
-      const newId =
-        reservations.length > 0 ? reservations[reservations.length - 1].id + 1 : 1;
-      setReservations([...reservations, { id: newId, ...formReservation }]);
+      // Neue Reservierung erstellen: Startzeit aus Datum und Uhrzeit zusammenführen
+      const start = new Date(formReservation.date + "T" + formReservation.time);
+      // Beispiel: Endzeit = Startzeit + 1 Stunde
+      const end = new Date(start.getTime() + 60 * 60 * 1000);
+
+      const newReservation = {
+        roomId: formReservation.roomId, // statt formReservation.roomName
+        user: formReservation.reservedBy,
+        startTime: start.toISOString(),
+        endTime: end.toISOString()
+      };
+      
+
+      fetch("http://localhost:5121/api/reservations", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(newReservation)
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Fehler beim Speichern der Reservierung");
+          }
+          return response.json();
+        })
+        .then((savedReservation) => {
+          // Neue Reservierung in den lokalen State einfügen
+          setReservations([...reservations, savedReservation]);
+          setFormReservation({ id: null, roomId: "", reservedBy: "", date: "", time: "" });
+
+        })
+        .catch((error) => console.error("Fehler beim Speichern der Reservierung:", error));
     } else {
-      const updated = reservations.map((r) =>
-        r.id === formReservation.id ? formReservation : r
-      );
-      setReservations(updated);
+      // Logik zum Aktualisieren einer Reservierung (PUT/PATCH) falls benötigt
     }
-  
-    setFormReservation({ id: null, roomName: "", reservedBy: "", date: "", time: "" });
   };
-  
 
   const handleEditReservation = (res) => setFormReservation(res);
-
   const handleDeleteReservation = (id) =>
     setReservations(reservations.filter((r) => r.id !== id));
 
@@ -122,9 +136,7 @@ function App() {
         </tbody>
       </table>
 
-      <h2 style={{ marginTop: "30px" }}>
-        {formRoom.id === null ? "Neuen Raum hinzufügen" : "Raum bearbeiten"}
-      </h2>
+      <h2>{formRoom.id === null ? "Neuen Raum hinzufügen" : "Raum bearbeiten"}</h2>
       <input
         type="text"
         name="name"
@@ -150,7 +162,7 @@ function App() {
         {formRoom.id === null ? "Hinzufügen" : "Speichern"}
       </button>
 
-      <h2 style={{ marginTop: "50px" }}>Reservierungen (Listenansicht)</h2>
+      <h2>Reservierungen</h2>
       <table border="1" cellPadding="10">
         <thead>
           <tr>
@@ -162,38 +174,41 @@ function App() {
           </tr>
         </thead>
         <tbody>
-          {reservations.map((res) => (
-            <tr key={res.id}>
-              <td>{res.roomName}</td>
-              <td>{res.reservedBy}</td>
-              <td>{res.date}</td>
-              <td>{res.time}</td>
-              <td>
-                <button onClick={() => handleEditReservation(res)}>Bearbeiten</button>
-                <button onClick={() => handleDeleteReservation(res.id)}>Löschen</button>
-              </td>
-            </tr>
-          ))}
+          {reservations.map((res, index) => {
+            // Finde anhand der roomId den Raumnamen aus der rooms-Liste
+            const room = rooms.find((r) => r.id === res.roomId);
+            const roomName = room ? room.name : res.roomId;
+            const startDate = new Date(res.startTime);
+            return (
+              <tr key={res.id ? res.id.toString() : `reservation-${index}`}>
+                <td>{roomName}</td>
+                <td>{res.user}</td>
+                <td>{startDate.toLocaleDateString()}</td>
+                <td>{startDate.toLocaleTimeString()}</td>
+                <td>
+                  <button onClick={() => handleEditReservation(res)}>
+                    Bearbeiten
+                  </button>
+                  <button onClick={() => handleDeleteReservation(res.id)}>
+                    Löschen
+                  </button>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
 
-      <h2 style={{ marginTop: "30px" }}>
-        {formReservation.id === null
-          ? "Neue Reservierung"
-          : "Reservierung bearbeiten"}
+      <h2>
+        {formReservation.id === null ? "Neue Reservierung" : "Reservierung bearbeiten"}
       </h2>
-      <select
-        name="roomName"
-        value={formReservation.roomName}
-        onChange={handleChangeReservation}
-      >
-        <option value="">Raum auswählen</option>
-        {rooms.map((r) => (
-          <option key={r.id} value={r.name}>
-            {r.name}
-          </option>
-        ))}
-      </select>
+      <select name="roomId" value={formReservation.roomId || ""} onChange={handleChangeReservation}>
+  <option value="">Raum auswählen</option>
+  {rooms.map((r) => (
+    <option key={r.id} value={r.id}>{r.name}</option>
+  ))}
+</select>
+
       <input
         type="text"
         name="reservedBy"

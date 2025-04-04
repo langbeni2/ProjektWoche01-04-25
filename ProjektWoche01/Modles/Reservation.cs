@@ -11,12 +11,16 @@ public class Reservation
     [BsonElement("roomId")]
     public string RoomId { get; set; }
 
+     public string RoomName { get; set; } 
+
     [BsonElement("user")]
-    public string User { get; set; }  // <--- Das fehlte!
+    public string User { get; set; }  
 
     [BsonElement("startTime")]
     public DateTime StartTime { get; set; }
 
     [BsonElement("endTime")]
     public DateTime EndTime { get; set; }
+
+
 }
